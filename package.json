@@ -1,0 +1,44 @@
+{
+  "name": "jcall",
+  "version": "1.0.0",
+  "description": "Ajax library that ease sending asynchronous calls to your backend server",
+  "main": "./src/jcall.js",
+  "module": "dist/jcall.esm.js",
+  "browser": "dist/jcall.umd.min.js",
+  "exports": {
+    "import": "./dist/jcall.esm.js",
+    "require": "./dist/jcall.cjs.js"
+  },
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yousef312/jcall.git"
+  },
+  "keywords": [
+    "ajax",
+    "fetch",
+    "request",
+    "POST",
+    "GET",
+    "PATCH",
+    "DELETE",
+    "handle",
+    "listen",
+    "channel"
+  ],
+  "bugs": {
+    "url": "https://github.com/yousef312/jcall/issues"
+  },
+  "homepage": "https://github.com/yousef312/jcall#readme",
+  
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.5",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup": "^4.43.0"
+  },
+  "author": "Yousef Neji",
+  "license": "MIT"
+}
