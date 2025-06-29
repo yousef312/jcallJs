@@ -341,6 +341,11 @@ function jcall(api, options) {
         }
 
         if (this.type === "XHR") {
+          let perceed = true;
+          if (typeof jcall.before === "function")
+            perceed = jcall.before(request, data) === false ? false : true;
+          if (perceed === false) res(false); // silently returned
+
           // ---------- SENDING XMLHttpRequest
           let xhr = new XMLHttpRequest();
           this.xhr = xhr;
@@ -434,6 +439,11 @@ function jcall(api, options) {
             request.headers["Authorization"] = request.headers.authorize;
           if (request.csrf) request.headers["X-CSRF-TOKEN"] = request.csrf;
 
+          let perceed = true;
+          if (typeof jcall.before === "function")
+            perceed = jcall.before(request, data) === false ? false : true;
+          if (perceed === false) res(false); // silently returned
+
           request.cache = fetch(request.url, request)
             .then(async (response) => {
               const { ok, status, statusText, type, headers } = response;
@@ -518,8 +528,29 @@ jcall.authorization = null; // used in each jcall call if defined
 /**
  * An after callback will be executed after all requests.
  * you can use this to automate csrf cycle configuration!
+ * @method jcall
+ * @param {Object} request
+ * @param {Object} request.result
+ * @param {Object} request.response
+ * @param {Object} request.headers
+ * @param {string} request.contentType
  */
 jcall.after = local_noop;
+
+/**
+ * A before callback will be executed just before any future request
+ * you can use this to automate different tasks throughout your app
+ * @param {Object} request
+ * @param {string} request.api
+ * @param {string} request.url
+ * @param {string} request.method
+ * @param {string} request.credentials
+ * @param {number} request.timeout
+ * @param {Object} request.headers
+ * @param {string} request.csrf
+ * @param {Object} data
+ */
+jcall.before = local_noop;
 
 /**
  * Used to prevent user interactions while request is being handled

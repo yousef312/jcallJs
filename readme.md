@@ -28,9 +28,8 @@ let data = {
     age: 23
 }
 
-jcall("/user/add",{
-    method: "POST"
-})
+// by default POST
+jcall("/user/add")
     .launch(data)
     .then((res)=>{
         // structure of `res`
@@ -50,6 +49,15 @@ jcall("/user/add",{
         console.error(e);
     })
 
+```
+
+### Using Different Methods
+```javascript
+jcall("GET:match/score") // get request
+jcall("PATCH:match/data") // patch request
+jcall("DELETE:user/record") // delete request
+jcall("PUT:user/login") // update request
+...
 ```
 
 ### Manipulating headers
@@ -78,10 +86,9 @@ jcall.csrf = csrfToken;
 ### Authorization/login token
 when authorizing a user, the usual flow consist of getting unique token from the backend and send it with each future call, so the server verify it's you!
 ```JavaScript
-// the `after` func will get executed
-// after each request, can be used to
-// dynamically update the authorization 
-// token each time it get updated 
+// the `after` or `before` functions will sequencly execute
+// after and before each request, can be used to dynamically 
+// update the authorization token each time it get updated 
 // server-side!
 jcall.after = (res)=>{
     if(res.result.token)
@@ -89,6 +96,13 @@ jcall.after = (res)=>{
         // send automatically in the headers 
         // with each request
         jcall.authorization = "Bearer " + res.result.token;
+}
+
+jcall.before = (request,data)=>{
+    // do something to the data & the request
+    let test = validate(data); // validation for example
+    if(!test) return false; // will silently skip/stop the request returning `false` in .then() callback
+
 }
 
 // future request is authorized and well maintained
