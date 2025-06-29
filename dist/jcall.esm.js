@@ -7,7 +7,7 @@ function isObjectLiteral(obj) {
 }
 
 const METHODS = ["put", "delete", "post", "get", "patch"];
-const local_noop = () => { }; // no operation fn
+const local_noop = () => {}; // no operation fn
 const FETCH_SUPPORT = typeof fetch === "function";
 
 class FetchError extends Error {
@@ -74,10 +74,9 @@ function getHeaders(object) {
 /**
  * Send a synchronized request for a server backend, allowing you to create user-friendly interaction
  * with your different `data sources`.
+ * @param {string} api Api could be either the url to be requested or composed one alongside the method `get:/people/names`
  * @param {Object} options Request different options, please read about jcall requests
  * @param {String} options.method The method used in the request one of <`POST`,`GET`,`PUT`,`DELETE`, `PATCH`>
- * @param {String} options.api the url of the request
- * @param {Object|String} options.data the data to be sent with the request
  * @param {Object} [options.headers] Optionally provide some headers for the request, example:
  * ```
  * const headers = {
@@ -112,11 +111,16 @@ function jcall(api, options) {
     throw new Error("An api/url must be defined to send an jcall request!");
 
   options = options || {};
-  let method = (options.method || "post").toLowerCase();
+  let url = api;
+  let method = "post";
   let timeout = options.timeout || null;
   let credentials = options.credentials || false;
   let csrf = options.csrf || jcall.csrf;
   let useXHR = options.useXHR || false;
+
+  if (api.indexOf(":")) {
+    [method, url] = api.split(":");
+  }
 
   // credentials are required to send cookies for csrf protections
   // so let's activate them
@@ -126,15 +130,13 @@ function jcall(api, options) {
 
   // auto create preventer
   if (jcall.preventer === true) {
-    let div = document.createElement('div');
+    let div = document.createElement("div");
     // applying some style
     div.style.backgroundColor = "rgba(0,0,0,.2)";
     div.style.position = "fixed";
     div.style.zIndex = "10000";
-    div.style.left =
-      div.style.top = 0;
-    div.style.width =
-      div.style.height = "100%";
+    div.style.left = div.style.top = 0;
+    div.style.width = div.style.height = "100%";
     div.style.display = "none";
     div.open = function () {
       this.style.display = "inline";
@@ -149,16 +151,17 @@ function jcall(api, options) {
   let abortController = new AbortController();
   let request = {
     api,
+    url,
     method: method && METHODS.indexOf(method) != -1 ? method : "post",
     credentials: typeof credentials == "boolean" ? credentials : false,
     timeout: timeout
       ? timeout < 10
         ? timeout * 1000
         : timeout < 100
-          ? timeout * 100
-          : timeout < 1000
-            ? timeout * 10
-            : timeout
+        ? timeout * 100
+        : timeout < 1000
+        ? timeout * 10
+        : timeout
       : 0,
     headers: {
       signal: abortController.signal,
@@ -183,7 +186,7 @@ function jcall(api, options) {
         reject(
           new FetchError(
             401 +
-            " - Unauthorized: Authentication is required, or the provided credentials are incorrect.",
+              " - Unauthorized: Authentication is required, or the provided credentials are incorrect.",
             401,
             statusText,
             response
@@ -194,7 +197,7 @@ function jcall(api, options) {
         reject(
           new FetchError(
             403 +
-            " - Forbidden: The server understood the request, but the user doesn't have permission to perform the action.",
+              " - Forbidden: The server understood the request, but the user doesn't have permission to perform the action.",
             403,
             statusText,
             response
@@ -205,7 +208,7 @@ function jcall(api, options) {
         reject(
           new FetchError(
             404 +
-            " - Not Found: The requested resource could not be found on the server.",
+              " - Not Found: The requested resource could not be found on the server.",
             404,
             statusText,
             response
@@ -216,7 +219,7 @@ function jcall(api, options) {
         reject(
           new FetchError(
             500 +
-            " - Internal Server Error: The server encountered an unexpected condition.",
+              " - Internal Server Error: The server encountered an unexpected condition.",
             500,
             statusText,
             response
@@ -227,7 +230,7 @@ function jcall(api, options) {
         reject(
           new FetchError(
             502 +
-            " - Bad Gateway: The server, while acting as a gateway or proxy, received an invalid response from the upstream server.",
+              " - Bad Gateway: The server, while acting as a gateway or proxy, received an invalid response from the upstream server.",
             502,
             statusText,
             response
@@ -238,7 +241,7 @@ function jcall(api, options) {
         reject(
           new FetchError(
             503 +
-            " - Service Unavailable: The server is currently unavailable, often due to maintenance or overloading.",
+              " - Service Unavailable: The server is currently unavailable, often due to maintenance or overloading.",
             503,
             statusText,
             response
@@ -253,7 +256,7 @@ function jcall(api, options) {
    */
   let control = {
     type: useXHR === true ? "XHR" : FETCH_SUPPORT === true ? "FETCH" : "XHR",
-    progress: function () { },
+    progress: function () {},
     setHeaders: function (headers) {
       let res = {};
 
@@ -339,7 +342,7 @@ function jcall(api, options) {
           // ---------- SENDING XMLHttpRequest
           let xhr = new XMLHttpRequest();
           this.xhr = xhr;
-          xhr.open(request.method || "post", request.api);
+          xhr.open(request.method || "post", request.url);
           xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
           xhr.upload.onprogress = function (e) {
@@ -427,7 +430,7 @@ function jcall(api, options) {
             request.headers["Authorization"] = request.headers.authorize;
           if (request.csrf) request.headers["X-CSRF-TOKEN"] = request.csrf;
 
-          request.cache = fetch(request.api, request)
+          request.cache = fetch(request.url, request)
             .then(async (response) => {
               const { ok, status, statusText, type, headers } = response;
               // clearing timeout
@@ -524,7 +527,7 @@ jcall.after = local_noop;
 jcall.preventer = null;
 
 /**
- * Powerfull function allows you to convert a regular submitable form into an jcall based
+ * Powerfull function allows you to convert a regular submitable form into a jcall based
  * call, offering a customizable interface for maximum creativity and flex control!
  *
  * @param {HTMLFormElement} form the form to jcallify
