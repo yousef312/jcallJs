@@ -1,6 +1,6 @@
 {
   "name": "jcall",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Ajax library that ease sending asynchronous calls to your backend server",
   "main": "./src/jcall.js",
   "module": "dist/jcall.esm.js",
