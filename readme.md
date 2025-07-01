@@ -1,15 +1,10 @@
 # Jcall.js
-Ajax library that ease sending asynchronous calls to your backend server
+Better results requires a beatifull seamless code design that both helps ease the workflow, and keep it organized. Jcalls offers all of that beside a plenty of other functionalities and features hidden midway ;).
 
-## Author 
-Yousef Neji
+yeap that's me! [@yousef_neji](https://github.com/yousef312)
 
-## Version
-1.0.0
-
-
-## Tutorial
-Starting by importing our library
+## How to?
+Importing..
 
 ```JavaScript
 // commonjs
